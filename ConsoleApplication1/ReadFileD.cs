@@ -8,60 +8,7 @@ namespace ConsoleApplication1
 {
     public class ReadFileD
     {
-        //internal void GetFile()
-        //{
-        //    string fileName = @"C:\Users\42039\Documents\Personal\Pba.txt";
-
-        //    string[] contenidoLineas = File.ReadAllLines(fileName);
-
-        //    List<Archivo> archivo = new List<Archivo>();
-        //    int contador = 0;
-        //    foreach (string record in contenidoLineas)
-        //    {
-        //        //Se brinca el primer renglon, xq es el encabezado
-        //        if (!record.Contains("columna1"))
-        //        {
-        //            //Separa el contenido del renglón por tabuladores
-        //            string[] fields = record.Split('\t');
-        //            Archivo rowValue = new Archivo();
-        //            try
-        //            {
-        //                //Crea una lista de la clase Archivo                       
-        //                rowValue = new Archivo
-        //                {
-        //                    // aquí puedes meter las validaciones para cada columna 
-        //                    Row = contador,
-        //                    Columna1 = fields[0],
-        //                    Columna2 = Convert.ToInt32(fields[1]),
-        //                    Columna3 = fields[2]
-        //                };
-
-
-        //            }
-        //            catch (Exception e)
-        //            {
-        //                //Crea una lista de la clase Archivo indicando que renglon tiene error y que error es
-        //                rowValue = new Archivo
-        //                {
-        //                    Row = contador,
-        //                    Message = e.Message
-        //                };
-        //            }
-        //            finally
-        //            {
-        //                archivo.Add(rowValue);
-        //            }
-        //        }
-        //        contador++;
-        //    }
-
-        //    foreach (var line in archivo)
-        //    {
-        //        Console.WriteLine(line.Columna1 + ' ' + line.Columna2 +  ' ' + line.Columna3);
-        //    }
-        //    int uno = 1;
-
-        //}
+        
         public List<BeneficiarioEntity> beneficiarioList = new List<BeneficiarioEntity>();
 
         internal bool LoadFile()
@@ -69,6 +16,8 @@ namespace ConsoleApplication1
             bool result = false;
             try
             {
+                Console.WriteLine("Start Load Data");
+
                 string fileName = @"C:\Users\42039\Documents\Personal\MED_SOL_TEST.txt";
                 string[] contenidoLineas = File.ReadAllLines(fileName);
 
@@ -183,8 +132,11 @@ namespace ConsoleApplication1
             }
             catch (Exception e)
             {
+                Console.WriteLine("Error ----> : " + e.Message);
                 result = false;
             }
+
+            Console.WriteLine("End Load Data");
 
             return result;
         }
@@ -193,6 +145,43 @@ namespace ConsoleApplication1
         {
             bool result = false;
 
+            try
+            {
+                Console.WriteLine("Start Process Data");
+                string fileName = @"C:\Users\42039\Documents\Personal\myfile.txt";
+                string fileNameError = @"C:\Users\42039\Documents\Personal\myfileError.txt";
+                if (File.Exists(fileName))
+                    File.Delete(fileName);
+                if (File.Exists(fileNameError))
+                    File.Delete(fileNameError);
+
+                FileStream fileStream = new FileStream(fileName, FileMode.OpenOrCreate, FileAccess.Write);
+                StreamWriter writerCorrect = new StreamWriter(fileStream);
+
+                FileStream fileStreamError = new FileStream(fileNameError, FileMode.OpenOrCreate, FileAccess.Write);
+                StreamWriter writerError = new StreamWriter(fileStreamError);
+
+                foreach (var beneficiario in beneficiarioList)
+                {
+                    if (beneficiario.IsValidRow)
+                    {
+                        writerCorrect.WriteLine("{0,-7}{1,-9}{2,-9}{3,-2}{4,-21}{5,-6}{6,-3}{7,-50}{8,-4}{9,-50}{10,-7}",beneficiario.Remesa,beneficiario.idIntegrante,beneficiario.idFamilia,beneficiario.Estado,
+                            beneficiario.descEdo, beneficiario.znaAtencion, beneficiario.idMunicipio, beneficiario.descMunicipio, beneficiario.idLocalidad, beneficiario.descLocalidad, beneficiario.idAGEB);
+                    }
+                    else
+                        writerError.WriteLine("{0,-7}{1,-9}{2,-9}{3,-2}{4,-21}{5,-6}{6,-3}{7,-50}{8,-4}{9,-50}{10,-7}", beneficiario.Remesa, beneficiario.idIntegrante, beneficiario.idFamilia, beneficiario.Estado,
+                            beneficiario.descEdo, beneficiario.znaAtencion, beneficiario.idMunicipio, beneficiario.descMunicipio, beneficiario.idLocalidad, beneficiario.descLocalidad, beneficiario.idAGEB);
+                }
+                writerCorrect.Close();
+                writerError.Close();
+                result = true;
+                Console.WriteLine("End Process Data");
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Error ----> : " + e.Message);
+            }
 
 
             return result;
@@ -203,21 +192,24 @@ namespace ConsoleApplication1
             var result = false;
             try
             {
+                Console.WriteLine("Start Validate Data");
+
                 var validation = new ValidationRules();
                 foreach (var beneficiario in beneficiarioList)
                 {
                     bool isValid = validation.ValidateBeneficiary(beneficiario);
                     beneficiario.IsValidRow = isValid;
-                    result = true;
                 }
+                result = true;
+                Console.WriteLine("End Validate Data");
+
             }
             catch (Exception e)
             {
                 //Falta ver que haras con el error, en caso de que exista
+                Console.WriteLine("Error ----> : " + e.Message);
                 result = false;
             }
-
-
             return result;
         }
     }
