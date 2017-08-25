@@ -200,7 +200,7 @@ namespace ConsoleApplication1
 
         internal bool ValidateFile()
         {
-            bool result = false;
+            var result = false;
             try
             {
                 var validation = new ValidationRules();
@@ -208,6 +208,7 @@ namespace ConsoleApplication1
                 {
                     bool isValid = validation.ValidateBeneficiary(beneficiario);
                     beneficiario.IsValidRow = isValid;
+                    result = true;
                 }
             }
             catch (Exception e)
